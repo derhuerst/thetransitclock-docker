@@ -1,10 +1,10 @@
 FROM maven:3.6-jdk-8
-MAINTAINER Nathan Walker <nathan@rylath.net>, Sean Óg Crudden <og.crudden@gmail.com>
+LABEL org.opencontainers.image.authors="Jannis R <mail@jannisr.de>"
 
 ARG AGENCYID="1"
-ARG AGENCYNAME="GOHART"
-ARG GTFS_URL="http://gohart.org/google/google_transit.zip"
-ARG GTFSRTVEHICLEPOSITIONS="http://realtime.prod.obahart.org:8088/vehicle-positions"
+ARG AGENCYNAME
+ARG GTFS_URL
+ARG GTFSRTVEHICLEPOSITIONS
 ARG TRANSITCLOCK_PROPERTIES="config/transitclock.properties"
 
 ENV AGENCYID ${AGENCYID}
@@ -90,8 +90,8 @@ ADD bin/connect_to_db.sh /usr/local/transitclock/bin/connect_to_db.sh
 ENV PATH="/usr/local/transitclock/bin:${PATH}"
 
 # This is a way to copy in test data to run a regression test.
-ADD data/avl.csv /usr/local/transitclock/data/avl.csv
-ADD data/gtfs_hart_old.zip /usr/local/transitclock/data/gtfs_hart_old.zip
+# ADD data/avl.csv /usr/local/transitclock/data/avl.csv
+# ADD data/gtfs_hart_old.zip /usr/local/transitclock/data/gtfs_hart_old.zip
 
 RUN \
 	sed -i 's/\r//' /usr/local/transitclock/bin/*.sh &&\

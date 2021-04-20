@@ -11,9 +11,9 @@ docker rmi transitclock-server
 docker build --no-cache -t transitclock-server \
 --build-arg TRANSITCLOCK_PROPERTIES="config/transitclock.properties" \
 --build-arg AGENCYID="1" \
---build-arg AGENCYNAME="CAPMETRO" \
---build-arg GTFS_URL="https://data.texas.gov/download/r4v4-vz24/application/zip" \
---build-arg GTFSRTVEHICLEPOSITIONS="https://data.texas.gov/download/eiei-9rpf/application%2Foctet-stream" .
+--build-arg AGENCYNAME="herrenberg" \
+--build-arg GTFS_URL="https://www.openvvs.de/dataset/e66f03e4-79f2-41d0-90f1-166ca609e491/resource/bfbb59c7-767c-4bca-bbb2-d8d32a3e0378/download/google_transit.zip" \
+--build-arg GTFSRTVEHICLEPOSITIONS="http://api.localhost:5000/gtfs-rt-vehicle-positions.pbf" .
 
 docker run --name transitclock-db -p 5432:5432 -e POSTGRES_PASSWORD=$PGPASSWORD -d postgres:9.6.3
 
