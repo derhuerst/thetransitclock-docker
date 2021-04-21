@@ -17,8 +17,7 @@ ENV TRANSITCLOCK_CORE /transitclock-core
 
 RUN apt-get update \
 	&& apt-get install -y postgresql-client \
-	&& apt-get install -y git-core \
-	&& apt-get install -y vim
+	&& apt-get install -y git-core
 
 ENV CATALINA_HOME /usr/local/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
@@ -26,7 +25,7 @@ RUN mkdir -p "$CATALINA_HOME"
 WORKDIR $CATALINA_HOME
 
 ENV TOMCAT_MAJOR 8
-ENV TOMCAT_VERSION 8.0.43
+ENV TOMCAT_VERSION 8.0.53
 ENV TOMCAT_TGZ_URL https://archive.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
 
 RUN set -x \
@@ -39,30 +38,14 @@ EXPOSE 8080
 
 
 # Install json parser so we can read API key for CreateAPIKey output
+RUN wget -q 'https://stedolan.github.io/jq/download/linux64/jq' -O /usr/local/bin/jq && chmod +x /usr/local/bin/jq
 
-RUN wget http://stedolan.github.io/jq/download/linux64/jq
-
-RUN chmod +x ./jq
-
-RUN cp jq /usr/bin/
-
-WORKDIR /
-RUN mkdir /usr/local/transitclock
-RUN mkdir /usr/local/transitclock/db
-RUN mkdir /usr/local/transitclock/config
-RUN mkdir /usr/local/transitclock/logs
-RUN mkdir /usr/local/transitclock/cache
-RUN mkdir /usr/local/transitclock/data
-RUN mkdir /usr/local/transitclock/test
-RUN mkdir /usr/local/transitclock/test/config
+# todo: is this necessary?
+RUN mkdir -p /usr/local/transitclock/{db,config,logs,cache,data,test/config}
 
 WORKDIR /usr/local/transitclock
 
-RUN  curl -s https://api.github.com/repos/TheTransitClock/transitime/releases/latest | jq -r ".assets[].browser_download_url" | grep 'Core.jar\|api.war\|web.war' | xargs -L1 wget
-
-#ADD transitime/transitclockWebapp/target/web.war /usr/local/transitclock/
-#ADD transitime/transitclockApi/target/api.war /usr/local/transitclock/
-#ADD transitime/transitclock/target/Core.jar /usr/local/transitclock/
+RUN  curl -s https://api.github.com/repos/TheTransitClock/transitime/releases/latest | jq -r ".assets[].browser_download_url" | grep 'Core.jar\|api.war\|web.war' | xargs -L1 wget -q
 
 # Deploy API which talks to core using RMI calls.
 RUN mv api.war  /usr/local/tomcat/webapps
@@ -71,21 +54,7 @@ RUN mv api.war  /usr/local/tomcat/webapps
 RUN mv web.war  /usr/local/tomcat/webapps
 
 # Scripts required to start transiTime.
-ADD bin/check_db_up.sh /usr/local/transitclock/bin/check_db_up.sh
-ADD bin/generate_sql.sh /usr/local/transitclock/bin/generate_sql.sh
-ADD bin/create_tables.sh /usr/local/transitclock/bin/create_tables.sh
-ADD bin/create_api_key.sh /usr/local/transitclock/bin/create_api_key.sh
-ADD bin/create_webagency.sh /usr/local/transitclock/bin/create_webagency.sh
-ADD bin/import_gtfs.sh /usr/local/transitclock/bin/import_gtfs.sh
-ADD bin/start_transitclock.sh /usr/local/transitclock/bin/start_transitclock.sh
-ADD bin/get_api_key.sh /usr/local/transitclock/bin/get_api_key.sh
-ADD bin/import_avl.sh /usr/local/transitclock/bin/import_avl.sh
-ADD bin/process_avl.sh /usr/local/transitclock/bin/process_avl.sh
-ADD bin/update_traveltimes.sh /usr/local/transitclock/bin/update_traveltimes.sh
-ADD bin/set_config.sh /usr/local/transitclock/bin/set_config.sh
-
-# Handy utility to allow you connect directly to database
-ADD bin/connect_to_db.sh /usr/local/transitclock/bin/connect_to_db.sh
+ADD bin /usr/local/transitclock/bin
 
 ENV PATH="/usr/local/transitclock/bin:${PATH}"
 
